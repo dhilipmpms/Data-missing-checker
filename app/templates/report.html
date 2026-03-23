@@ -1,0 +1,300 @@
+{% extends "base.html" %}
+{% block title %}Quality Report — {{ report.filename }}{% endblock %}
+
+{% block content %}
+<div class="report-page">
+
+    <!-- ══════════════ Report Header ══════════════ -->
+    <div class="report-header glass-card">
+        <div class="report-title-row">
+            <div>
+                <div class="report-badge">📊 Quality Report</div>
+                <h1 class="report-filename">{{ report.filename }}</h1>
+                <p class="report-meta">{{ report.total_rows }} rows × {{ report.total_columns }} columns</p>
+            </div>
+            <!-- Quality Score Ring -->
+            <div class="score-ring-wrapper">
+                <div class="score-ring
+                    {% if report.quality_score >= 80 %}score-high
+                    {% elif report.quality_score >= 50 %}score-medium
+                    {% else %}score-low{% endif %}">
+                    <span class="score-value">{{ report.quality_score }}</span>
+                    <span class="score-label">/ 100</span>
+                </div>
+                <p class="score-desc">Quality Score</p>
+            </div>
+        </div>
+
+        <!-- Download Buttons -->
+        <div class="download-bar">
+            <a href="{{ url_for('main.download_report', report_format='csv') }}" class="btn-download btn-csv">
+                ⬇ Download CSV Report
+            </a>
+            <a href="{{ url_for('main.download_report', report_format='pdf') }}" class="btn-download btn-pdf">
+                ⬇ Download PDF Report
+            </a>
+            <a href="{{ url_for('main.index') }}" class="btn-download btn-new">
+                ↑ Upload New File
+            </a>
+        </div>
+    </div>
+
+    <!-- ══════════════ KPI Summary Cards ══════════════ -->
+    <div class="kpi-grid">
+        <div class="kpi-card kpi-blue">
+            <div class="kpi-icon">📋</div>
+            <div class="kpi-body">
+                <p class="kpi-label">Total Rows</p>
+                <p class="kpi-value">{{ "{:,}".format(report.total_rows) }}</p>
+            </div>
+        </div>
+        <div class="kpi-card kpi-purple">
+            <div class="kpi-icon">📑</div>
+            <div class="kpi-body">
+                <p class="kpi-label">Total Columns</p>
+                <p class="kpi-value">{{ report.total_columns }}</p>
+            </div>
+        </div>
+        <div class="kpi-card kpi-amber">
+            <div class="kpi-icon">⚠</div>
+            <div class="kpi-body">
+                <p class="kpi-label">Missing Cells</p>
+                <p class="kpi-value">{{ "{:,}".format(report.total_missing_cells) }}</p>
+            </div>
+        </div>
+        <div class="kpi-card kpi-red">
+            <div class="kpi-icon">🔁</div>
+            <div class="kpi-body">
+                <p class="kpi-label">Duplicate Rows</p>
+                <p class="kpi-value">{{ report.duplicate_rows }}
+                    <span class="kpi-pct">({{ report.duplicate_percentage }}%)</span>
+                </p>
+            </div>
+        </div>
+        <div class="kpi-card kpi-green">
+            <div class="kpi-icon">🔔</div>
+            <div class="kpi-body">
+                <p class="kpi-label">Warnings</p>
+                <p class="kpi-value">{{ report.warning_count }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════ Warnings Section ══════════════ -->
+    {% if report.warnings %}
+    <div class="section-card">
+        <h2 class="section-title">⚠ Warnings</h2>
+        <div class="warnings-list">
+            {% for w in report.warnings %}
+            <div class="warning-item warning-{{ w.type | lower }}">
+                <span class="warning-type-badge">{{ w.type }}</span>
+                <span class="warning-msg">{{ w.message }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ══════════════ Data Preview ══════════════ -->
+    <div class="section-card">
+        <h2 class="section-title">👁 Data Preview <span class="section-sub">(First {{ report.preview | length }}
+                rows)</span></h2>
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        {% for col in report.preview_columns %}
+                        <th>{{ col }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in report.preview %}
+                    <tr>
+                        {% for col in report.preview_columns %}
+                        <td class="{% if row[col] is none or row[col] == '' %}cell-null{% endif %}">
+                            {% if row[col] is none %}
+                            <span class="null-badge">NULL</span>
+                            {% else %}
+                            {{ row[col] }}
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ══════════════ Charts Row ══════════════ -->
+    <div class="charts-row">
+        <!-- Missing Values Bar Chart -->
+        <div class="section-card chart-card">
+            <h2 class="section-title">📊 Missing Values per Column</h2>
+            <canvas id="missingChart" height="250"></canvas>
+        </div>
+
+        <!-- Data Types Doughnut -->
+        <div class="section-card chart-card">
+            <h2 class="section-title">🔢 Data Type Distribution</h2>
+            <canvas id="typeChart" height="250"></canvas>
+        </div>
+    </div>
+
+    <!-- ══════════════ Missing Values Table ══════════════ -->
+    <div class="section-card">
+        <h2 class="section-title">🕳 Missing Values Details</h2>
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Column</th>
+                        <th>Missing Count</th>
+                        <th>Missing %</th>
+                        <th>Status</th>
+                        <th>Progress</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for col, info in report.missing_values.items() %}
+                    <tr>
+                        <td><strong>{{ col }}</strong></td>
+                        <td>{{ info.count }}</td>
+                        <td>{{ info.percentage }}%</td>
+                        <td>
+                            {% if info.percentage == 0 %}
+                            <span class="badge badge-ok">✓ Clean</span>
+                            {% elif info.percentage <= 5 %} <span class="badge badge-warn">⚠ Low</span>
+                                {% elif info.percentage <= 20 %} <span class="badge badge-medium">⚠ Medium</span>
+                                    {% else %}
+                                    <span class="badge badge-critical">✗ High</span>
+                                    {% endif %}
+                        </td>
+                        <td class="progress-cell">
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill
+                                    {% if info.percentage == 0 %}fill-ok
+                                    {% elif info.percentage <= 5 %}fill-warn
+                                    {% elif info.percentage <= 20 %}fill-medium
+                                    {% else %}fill-critical{% endif %}"
+                                    style="width: {{ [info.percentage, 100] | min }}%">
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ══════════════ Data Types Table ══════════════ -->
+    <div class="section-card">
+        <h2 class="section-title">🔠 Data Types</h2>
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Column</th>
+                        <th>Data Type</th>
+                        <th>Unique Values</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for col, dtype in report.data_types.items() %}
+                    <tr>
+                        <td><strong>{{ col }}</strong></td>
+                        <td><span class="dtype-badge">{{ dtype }}</span></td>
+                        <td>{{ report.unique_counts[col] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ══════════════ Statistics Table ══════════════ -->
+    {% if report.statistics %}
+    <div class="section-card">
+        <h2 class="section-title">📈 Statistics (Numeric Columns)</h2>
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Column</th>
+                        <th>Count</th>
+                        <th>Mean</th>
+                        <th>Median</th>
+                        <th>Std Dev</th>
+                        <th>Min</th>
+                        <th>Max</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for col, s in report.statistics.items() %}
+                    <tr>
+                        <td><strong>{{ col }}</strong></td>
+                        <td>{{ s.count }}</td>
+                        <td>{{ s.mean }}</td>
+                        <td>{{ s.median }}</td>
+                        <td>{{ s.std }}</td>
+                        <td class="stat-min">{{ s.min }}</td>
+                        <td class="stat-max">{{ s.max }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ══════════════ Outliers Table ══════════════ -->
+    {% if report.outliers %}
+    <div class="section-card">
+        <h2 class="section-title">🎯 Outlier Detection (IQR Method)</h2>
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Column</th>
+                        <th>Outlier Count</th>
+                        <th>Lower Bound</th>
+                        <th>Upper Bound</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for col, info in report.outliers.items() %}
+                    <tr>
+                        <td><strong>{{ col }}</strong></td>
+                        <td>
+                            {% if info.count > 0 %}
+                            <span class="badge badge-warn">{{ info.count }} outliers</span>
+                            {% else %}
+                            <span class="badge badge-ok">None</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ info.lower_bound }}</td>
+                        <td>{{ info.upper_bound }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+</div> <!-- end .report-page -->
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    /* ── Inject Python report data into JavaScript ── */
+    const reportData = {
+        columns: {{ report.preview_columns | tojson }},
+    missingValues: { { report.missing_values | tojson } },
+    dataTypes: { { report.data_types | tojson } },
+};
+</script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+{% endblock %}

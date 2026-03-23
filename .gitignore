@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+venc/
+.env/
+
+# Uploads
+uploads/*
+
+# OS files
+.DS_Store

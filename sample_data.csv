@@ -1,0 +1,31 @@
+id,name,age,email,salary,department,join_date,city,performance_score,active
+1,Alice Johnson,29,alice@example.com,72000.00,Engineering,2021-03-15,New York,88.5,true
+2,Bob Smith,35,bob@example.com,85000.00,Marketing,2019-07-22,Los Angeles,91.2,true
+3,Carol White,,carol@example.com,67000.00,HR,2020-11-01,Chicago,,true
+4,David Brown,42,david@example.com,95000.00,Engineering,2018-02-14,New York,87.0,true
+5,Eve Davis,28,eve@example.com,,Sales,2022-06-10,Houston,79.3,true
+6,Frank Miller,31,frank@example.com,71000.00,Marketing,2021-09-05,Phoenix,84.1,true
+7,Grace Wilson,45,grace@example.com,110000.00,Management,2015-01-20,Chicago,95.0,true
+8,Hank Moore,29,hank@example.com,68000.00,Engineering,2022-01-12,,82.5,true
+9,,33,invalid-email,73000.00,HR,2020-08-30,Dallas,77.8,true
+10,Jane Taylor,27,jane@example.com,64000.00,Sales,2023-02-28,San Jose,88.0,true
+11,Karl Anderson,38,karl@example.com,89000.00,Engineering,2017-11-11,Seattle,91.5,true
+12,Laura Thomas,41,,102000.00,Management,2016-05-03,New York,93.2,true
+13,Mike Jackson,25,mike@example.com,61000.00,Sales,2023-07-01,Austin,74.5,true
+14,Nancy Harris,36,nancy@example.com,78000.00,Marketing,2019-12-19,Boston,85.7,true
+15,Oscar Lewis,50,oscar@example.com,120000.00,Engineering,2010-04-22,Seattle,97.3,true
+16,Paula Clark,29,paula@example.com,69000.00,HR,2021-08-15,Denver,80.9,true
+17,Quincy Robinson,33,quincy@example.com,74000.00,Engineering,2020-03-10,Chicago,86.4,true
+18,Rachel Walker,27,rachel@example.com,62000.00,Sales,2023-01-05,Phoenix,76.1,true
+19,Steve Hall,,steve@example.com,88000.00,Marketing,2018-09-27,,89.8,true
+20,Tina Allen,31,tina@example.com,76000.00,HR,2021-04-14,Dallas,83.3,true
+21,Alice Johnson,29,alice@example.com,72000.00,Engineering,2021-03-15,New York,88.5,true
+22,Bob Smith,35,bob@example.com,85000.00,Marketing,2019-07-22,Los Angeles,91.2,true
+23,Uma Roberts,44,uma@example.com,98000.00,Management,2016-10-08,New York,94.1,true
+24,Victor Carter,26,victor@example.com,60000.00,Sales,2023-05-21,Houston,71.2,true
+25,Wendy Stewart,37,wendy@example.com,83000.00,Engineering,2018-06-30,Seattle,90.5,true
+26,Xavier Perez,29,xavier@example.com,67500.00,HR,2022-02-28,Chicago,78.4,true
+27,Yvonne Morris,55,yvonne@example.com,135000.00,Management,2008-03-12,Boston,98.5,true
+28,Zach Reed,30,zach@example.com,71500.00,Marketing,2021-07-15,Austin,82.7,true
+29,Amy Cook,34,amy@example.com,79000.00,Engineering,2019-01-17,Denver,87.9,true
+30,,28,,65000.00,Sales,2022-11-03,,75.0,false

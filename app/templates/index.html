@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Upload File — Data Quality Checker{% endblock %}
+
+{% block content %}
+<!-- ══════════════ Hero Section ══════════════ -->
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+        <div class="hero-badge">
+            <span class="badge-dot"></span>
+            AI-Powered Data Analysis
+        </div>
+        <h1 class="hero-title">
+            Check Your <span class="gradient-text">Data Quality</span>
+            <br>in Seconds
+        </h1>
+        <p class="hero-subtitle">
+            Upload your CSV or Excel file and instantly get a comprehensive report on
+            missing values, duplicates, data types, statistics, and more.
+        </p>
+
+        <!-- ── Feature Pills ── -->
+        <div class="feature-pills">
+            <span class="pill">✓ Missing Values</span>
+            <span class="pill">✓ Duplicates</span>
+            <span class="pill">✓ Type Checks</span>
+            <span class="pill">✓ Statistics</span>
+            <span class="pill">✓ Outliers</span>
+            <span class="pill">✓ PDF / CSV Export</span>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════ Upload Card ══════════════ -->
+<section class="upload-section">
+    <div class="upload-card glass-card">
+        <div class="card-header">
+            <div class="card-icon">📂</div>
+            <h2>Upload Your Dataset</h2>
+            <p>Supported formats: <strong>.csv</strong>, <strong>.xlsx</strong>, <strong>.xls</strong> — Max size: 16 MB
+            </p>
+        </div>
+
+        <!-- Upload Form -->
+        <form id="uploadForm" action="{{ url_for('main.analyze') }}" method="POST" enctype="multipart/form-data"
+            class="upload-form">
+
+            <!-- Drag-and-drop zone -->
+            <div class="drop-zone" id="dropZone">
+                <input type="file" id="fileInput" name="file" accept=".csv,.xlsx,.xls" class="file-input" required>
+                <div class="drop-zone-content" id="dropZoneContent">
+                    <div class="drop-icon">☁</div>
+                    <p class="drop-title">Drag & Drop your file here</p>
+                    <p class="drop-sub">or click to browse</p>
+                    <button type="button" class="btn-browse" onclick="document.getElementById('fileInput').click()">
+                        Browse File
+                    </button>
+                </div>
+                <!-- File selected preview -->
+                <div class="file-selected" id="fileSelected" style="display:none">
+                    <div class="file-icon">📄</div>
+                    <div class="file-info">
+                        <p class="file-name" id="selectedFileName"></p>
+                        <p class="file-size" id="selectedFileSize"></p>
+                    </div>
+                    <button type="button" class="btn-remove" onclick="resetUpload()">✕</button>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn-analyze" id="analyzeBtn" disabled>
+                <span class="btn-text">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="m21 21-4.35-4.35" />
+                    </svg>
+                    Analyze Data Quality
+                </span>
+                <span class="btn-loading" style="display:none">
+                    <span class="spinner"></span> Analyzing…
+                </span>
+            </button>
+        </form>
+    </div>
+
+    <!-- ── How It Works ── -->
+    <div class="how-it-works">
+        <h3>How It Works</h3>
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-num">1</div>
+                <h4>Upload</h4>
+                <p>Select your CSV or Excel dataset using the upload zone above.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">2</div>
+                <h4>Analyze</h4>
+                <p>Our engine scans for missing values, duplicates, type issues, and outliers.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">3</div>
+                <h4>Report</h4>
+                <p>Get a detailed dashboard and download your report as PDF or CSV.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
