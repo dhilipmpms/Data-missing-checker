@@ -56,7 +56,7 @@ Data_quality_checker/
 ### 1. Clone / Navigate to the project
 
 ```bash
-cd /home/dhilip/Projects/flask_projects/Data_quality_checker
+cd Data_missing_checker
 ```
 
 ### 2. Create a virtual environment
