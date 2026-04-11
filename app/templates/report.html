@@ -292,9 +292,9 @@
     /* ── Inject Python report data into JavaScript ── */
     const reportData = {
         columns: {{ report.preview_columns | tojson }},
-    missingValues: { { report.missing_values | tojson } },
-    dataTypes: { { report.data_types | tojson } },
-};
+        missingValues: {{ report.missing_values | tojson }},
+        dataTypes: {{ report.data_types | tojson }},
+    };
 </script>
 <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
 {% endblock %}
